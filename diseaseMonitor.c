@@ -117,6 +117,67 @@ int main(int argc, char *argv[])
 
 	printf("capacity: %d\n", capacity);
 
+	size_t n;
+	//command prompt
+	char *command = NULL;
+	do {
+		if (command != NULL)
+			free(command);
+		command = NULL;
+		lineSize = getline(&command, &n, stdin); //get line from stdin
+		command[lineSize - 1] = '\0';
+		printf("COMMAND: %s\n", command); 
+/*1*/	if (strncmp(command, "/globalDiseaseStats", strlen("/globalDiseaseStats")) == 0) {
+			// printf("/globalDiseaseStats\n");
+			char *token = strtok(command," ");
+    		token = strtok(NULL, " ");
+			if (token != NULL)printf("%s\n",token);
+			
+
+/*2*/	} else if (strncmp(command, "lrb", strlen("lrb")) == 0) {
+			// printf("lrb\n");
+			char *token = strtok(command," ");
+    		token = strtok(NULL, " ");
+			// printf("%s\n",token);
+			
+
+/*3*/	} else if (strncmp(command, "ins", strlen("ins")) == 0) {
+			// printf("ins\n");
+			
+
+
+/*4*/	} else if (strncmp(command, "find", strlen("find")) == 0) {
+			// printf("find\n");
+			
+			char *token = strtok(command," ");
+    		token = strtok(NULL, " ");
+			// printf("%s\n",token);
+			
+
+/*5*/	} else if (strncmp(command, "delete", strlen("delete")) == 0) {
+			// printf("delete\n");
+			printf("delete not implemented\n");
+/*6*/	} else if (strncmp(command, "vote ", strlen("vote ")) == 0) {
+			// printf("vote\n");
+			char *token = strtok(command," ");
+    		token = strtok(NULL, " ");
+			// printf("%s\n",token);
+
+
+/*7*/	} else if (strncmp(command, "load", strlen("load")) == 0) {
+			// printf("load\n");
+			char *token = strtok(command," ");
+    		token = strtok(NULL, " ");
+			// printf("%s\n",token);
+			
+			
+		}
+
+	} while(strcmp(command, "/exit\0") != 0);
+	if (command != NULL)
+		free(command);
+
+
 	// // print entries of bucket	
 	// printf("%d\n", diseaseHashNum);
 	// for (int i = 0; i < diseaseHashNum; i++)
