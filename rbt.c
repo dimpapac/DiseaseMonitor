@@ -11,7 +11,8 @@ rb_node *newRBTNode(date * k) {
     temp->data_date.year = k->year;
 
     temp->listPtr = NULL;
-    
+    temp->counter = 1;
+
     temp->color = 1; 
     temp->left = temp->right = temp->parent = NULL; 
     return temp; 
@@ -21,12 +22,12 @@ rb_node *newRBTNode(date * k) {
 void free_rb(rb_node *root) {
 	if (root == NULL)
 		return;
-	if (root->right != NULL) {
+    // if (root->right != NULL) 
 		free_rb(root->right);
-	}
-	if (root->left != NULL) {
+
+	// if (root->left != NULL) 
 		free_rb(root->left);
-	}
+
 	freeRBTNode(root);
 }
 
@@ -37,7 +38,7 @@ void inorder(rb_node *root) {
         printf("%d/%d/%d \n", root->data_date.day, root->data_date.month, root->data_date.year); 
         if (root->parent != NULL){
             // printf("parent of %d/%d/%d: %d/%d/%d\n", root->data, root->parent->data);
-        	printf("parent of %d/%d/%d: %d/%d/%d\n",  \
+        	printf("parent of %d/%d/%d----->%d/%d/%d \t",  \
                 root->data_date.day, root->data_date.month, root->data_date.year,  \
                 root->parent->data_date.day, root->parent->data_date.month, root->parent->data_date.year);
         }
@@ -86,27 +87,6 @@ void RotateLeft(rb_node **root, rb_node *x){
 }
 
 
-// = pouthena
-// rb_node *search(rb_node* root, int k) {
-
-// 	//base cases: root is null or id is present as root 
-//     // if (root == NULL || strcmp(root->v->id, id) == 0)
-// 	if (root == NULL || root->data == k)
-// 		return root;
-
-// 	//id is greater than root's id
-//     // if (strcmp(id, root->v->id) > 0)
-// 	if (k > root->data)
-// 		return search(root->right, k);
-
-// 	//id is smaller than root's id
-//     // if (strcmp(id, root->v->id) < 0)
-// 	if (k < root->data)
-// 		return search(root->left, k);
-
-// 	// else
-// 	// 	return NULL;	
-// }
 
 //Right Rotation (Similar to LeftRotate)
 void RotateRight(rb_node **root, rb_node *y){
@@ -219,8 +199,11 @@ void insert(rb_node **root, rb_node *z){
         while (x != NULL){
             y = x;
             // if (z->data < x->data)
-            if (earlier(&z->data_date, &x->data_date) == 0)
+            if (earlier(&z->data_date, &x->data_date) == 0){
+                x->counter++;
+                free(z);
                 return;
+            }
             // if (earlier(&z->data_date, &x->data_date) == 1)
             else if (earlier(&z->data_date, &x->data_date) == 1)
             // if (strcmp(z->v->id, x->v->id) < 0)
@@ -230,8 +213,11 @@ void insert(rb_node **root, rb_node *z){
         }
         z->parent = y;
         // if (z->data > y->data)
-        if (earlier(&z->data_date, &y->data_date) == 0)
+        if (earlier(&z->data_date, &y->data_date) == 0){
+            y->counter++;
+            free(z);
             return;
+        }
         // if (earlier(&z->data_date, &y->data_date) == -1)
         else if (earlier(&z->data_date, &y->data_date) == -1)
         // if (strcmp(z->v->id, y->v->id) > 0)
@@ -287,6 +273,6 @@ void print_rb_node(rb_node *node){
 //takes a pointer to a red black node and frees what is needed
 void freeRBTNode(rb_node *node){
     //
-    free(node->listPtr);
+    // free(node->listPtr);
 	free(node);
 }

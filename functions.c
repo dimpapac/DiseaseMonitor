@@ -177,20 +177,20 @@ bucket * initialize_bucket(int cap){
 }
 
 
-rb_node *diseaseIDexists(bucket *my_bucket, char *my_diseaseID){
+rb_node **diseaseIDexists(bucket *my_bucket, char *my_diseaseID){
 	bucket * last_bucket = my_bucket;
 	while (last_bucket != NULL){
 		for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
 		{
 	 		if (strcmp(last_bucket->entries[k].nameOfdisease,my_diseaseID) == 0)
 	 		{
-	 			printf("%s already exists\n", my_diseaseID);
-	 			return last_bucket->entries[k].root; 
+	 			// printf("%s already exists\n", my_diseaseID);
+	 			return &last_bucket->entries[k].root; 
 	 		}
 		}
-		last_bucket = last_bucket->next; 
+		last_bucket = last_bucket->next;
 	}
-	printf("%s not exists\n", my_diseaseID);
+	// printf("%s not exists\n", my_diseaseID);
 	return NULL;
 }
 
@@ -204,7 +204,7 @@ void insert_entry_to_bucket(bucket *last_bucket, char *diseaseID, list_node *new
 		last_bucket->entries[last_bucket->currentNumberOfEntries].nameOfdisease = malloc(sizeof(char) * (strlen(diseaseID) + 1));
 		strcpy(last_bucket->entries[last_bucket->currentNumberOfEntries].nameOfdisease, diseaseID);
 		//field 2 
-		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate); //not freed
+		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
 		insert(&last_bucket->entries[last_bucket->currentNumberOfEntries].root, new_tree_node);
 		//deikti red black komvou = new_node
 		last_bucket->entries[last_bucket->currentNumberOfEntries].root->listPtr = new_node;
@@ -218,7 +218,7 @@ void insert_entry_to_bucket(bucket *last_bucket, char *diseaseID, list_node *new
 		new_bucket->entries[0].nameOfdisease = malloc(sizeof(char) * (strlen(diseaseID) + 1));
 		strcpy(new_bucket->entries[0].nameOfdisease, diseaseID);
 		//field 2
-		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate); //not freed
+		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
 		insert(&new_bucket->entries[0].root, new_tree_node);
 		//deikti red black komvou = new_node
 		new_bucket->entries[0].root->listPtr = new_node;
@@ -240,7 +240,7 @@ void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *ne
 		diseaseHashTable[hashValue]->entries[0].nameOfdisease = malloc(sizeof(char) * (strlen(new_node->data->diseaseID) + 1));
 		strcpy(diseaseHashTable[hashValue]->entries[0].nameOfdisease, new_node->data->diseaseID);
 		//field 2
-		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate); //not freed
+		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
 		insert(&diseaseHashTable[hashValue]->entries[0].root, new_tree_node);
 		//deikti red black komvou = new_node
 		diseaseHashTable[hashValue]->entries[0].root->listPtr = new_node;
@@ -248,12 +248,9 @@ void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *ne
 	}
 	else
 	{	
-		printf("ti\n");
-		rb_node * root = diseaseIDexists(diseaseHashTable[hashValue], new_node->data->diseaseID);
-		printf("fasi\n");
+		rb_node ** root = diseaseIDexists(diseaseHashTable[hashValue], new_node->data->diseaseID);
 		if (root == NULL)
 		{
-			printf("kalispera den vrethike dentro th ftiakso kainourgio\n");
 			bucket *last_bucket = diseaseHashTable[hashValue]; 
 			while (last_bucket->next != NULL) //get last bucket 
 				last_bucket = last_bucket->next;
@@ -261,9 +258,8 @@ void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *ne
 		}
 		else 
 		{
-			printf("iparxei idi dentro th xwsw mono tin imerominia mou\n");
-			rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate); //not freed
-			insert(&root, new_tree_node);
+			rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
+			insert(root, new_tree_node);
 		}
 	}
 }
@@ -273,8 +269,9 @@ void free_bucket(bucket *buc){
 	{
 	 	// printf("name of entry %d: %s\n", j, buc->entries[j].nameOfdisease);
 	 	free(buc->entries[j].nameOfdisease); 	
-	 	// free_rb(buc->entries[j].root);	
-	} 
+	 	free_rb(buc->entries[j].root);
+	}
+
 	free(buc->entries);
 	free(buc);
 }

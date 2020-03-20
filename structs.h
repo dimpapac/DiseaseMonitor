@@ -37,7 +37,7 @@ typedef struct rbt_node{
 	//data of node	
 	list_node *listPtr; //pointer to patients-list
 	date data_date; //date of node 
-	// int data; //data to check if rbt works correct 	
+	int counter; //number of duplicates 	
 
 	int color; //1 if red 
 	struct rbt_node *left, *right, *parent;

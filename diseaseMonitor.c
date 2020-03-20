@@ -117,36 +117,37 @@ int main(int argc, char *argv[])
 
 	printf("capacity: %d\n", capacity);
 
-	// print entries of bucket	
-	printf("%d\n", diseaseHashNum);
-	for (int i = 0; i < diseaseHashNum; i++)
-	{
-		printf("%p\n", diseaseHashTable[i]);
-		if (diseaseHashTable[i] != NULL)
-		{
-			printf("cur entries: %d for bucket No: %d\n", diseaseHashTable[i]->currentNumberOfEntries, i);
-			for (int j = 0; j < diseaseHashTable[i]->currentNumberOfEntries; j++)
-			{
-			 	printf("name of entry %d: %s root: %p\n", j, diseaseHashTable[i]->entries[j].nameOfdisease, diseaseHashTable[i]->entries[j].root);
-			 	if (diseaseHashTable[i]->entries[j].root != NULL)
-			 	{
-			 		inorder(diseaseHashTable[i]->entries[j].root);
-			 	}
-			} 
-			bucket * last_bucket = diseaseHashTable[i]->next;
-			while (last_bucket != NULL){
-				for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
-				{
-			 		printf("name of entry %dk: %s root: %p\n", k, last_bucket->entries[k].nameOfdisease, last_bucket->entries[k].root);
-			 		if (last_bucket->entries[k].root != NULL)
-			 		{
-			 			inorder(last_bucket->entries[k].root);
-			 		}
-				}
-				last_bucket = last_bucket->next; 
-			}
-		}
-	}
+	// // print entries of bucket	
+	// printf("%d\n", diseaseHashNum);
+	// for (int i = 0; i < diseaseHashNum; i++)
+	// {
+	// 	printf("%p\n", diseaseHashTable[i]);
+	// 	if (diseaseHashTable[i] != NULL)
+	// 	{
+	// 		printf("cur entries: %d for bucket No: %d\n", diseaseHashTable[i]->currentNumberOfEntries, i);
+	// 		for (int j = 0; j < diseaseHashTable[i]->currentNumberOfEntries; j++)
+	// 		{
+	// 		 	printf("name of entry %d: %s root: %p\n", j, diseaseHashTable[i]->entries[j].nameOfdisease, diseaseHashTable[i]->entries[j].root);
+	// 		 	if (diseaseHashTable[i]->entries[j].root != NULL)
+	// 		 	{
+	// 		 		inorder(diseaseHashTable[i]->entries[j].root);
+	// 		 	}
+	// 		} 
+	// 		bucket * last_bucket = diseaseHashTable[i]->next;
+	// 		while (last_bucket != NULL){
+	// 			for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
+	// 			{
+	// 		 		printf("name of entry %dk: %s root: %p\n", k, last_bucket->entries[k].nameOfdisease, last_bucket->entries[k].root);
+	// 		 		if (last_bucket->entries[k].root != NULL)
+	// 		 		{
+	// 		 			inorder(last_bucket->entries[k].root);
+	// 		 		}
+	// 			}
+	// 			last_bucket = last_bucket->next; 
+	// 		}
+	// 		printf("\n");
+	// 	}
+	// }
 
 
 
