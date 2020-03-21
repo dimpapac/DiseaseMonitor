@@ -44,7 +44,7 @@ typedef struct rbt_node{
 } rb_node;
 
 typedef struct {
-	char *nameOfdisease;
+	char *nameOfdiseaseORc;
 	rb_node *root;
 } bucket_entry;
 

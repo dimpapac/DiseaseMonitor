@@ -182,7 +182,7 @@ rb_node **diseaseIDexists(bucket *my_bucket, char *my_diseaseID){
 	while (last_bucket != NULL){
 		for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
 		{
-	 		if (strcmp(last_bucket->entries[k].nameOfdisease,my_diseaseID) == 0)
+	 		if (strcmp(last_bucket->entries[k].nameOfdiseaseORc,my_diseaseID) == 0)
 	 		{
 	 			// printf("%s already exists\n", my_diseaseID);
 	 			return &last_bucket->entries[k].root; 
@@ -197,12 +197,12 @@ rb_node **diseaseIDexists(bucket *my_bucket, char *my_diseaseID){
 
 //insert entry to last bucket of buckets-list
 //if bucket is full allocate a new bucket and connect it with the last bucket of the buckets-list
-void insert_entry_to_bucket(bucket *last_bucket, char *diseaseID, list_node *new_node, int capacity){
+void insert_entry_to_bucket(bucket *last_bucket, char *diseaseIDorc, list_node *new_node, int capacity){
 	if (last_bucket->currentNumberOfEntries < capacity) //fits in current bucket 
 	{	
 		//field 1
-		last_bucket->entries[last_bucket->currentNumberOfEntries].nameOfdisease = malloc(sizeof(char) * (strlen(diseaseID) + 1));
-		strcpy(last_bucket->entries[last_bucket->currentNumberOfEntries].nameOfdisease, diseaseID);
+		last_bucket->entries[last_bucket->currentNumberOfEntries].nameOfdiseaseORc = malloc(sizeof(char) * (strlen(diseaseIDorc) + 1));
+		strcpy(last_bucket->entries[last_bucket->currentNumberOfEntries].nameOfdiseaseORc, diseaseIDorc);
 		//field 2 
 		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
 		insert(&last_bucket->entries[last_bucket->currentNumberOfEntries].root, new_tree_node);
@@ -215,8 +215,8 @@ void insert_entry_to_bucket(bucket *last_bucket, char *diseaseID, list_node *new
 	{
 		bucket *new_bucket = initialize_bucket(capacity);
 		//field 1
-		new_bucket->entries[0].nameOfdisease = malloc(sizeof(char) * (strlen(diseaseID) + 1));
-		strcpy(new_bucket->entries[0].nameOfdisease, diseaseID);
+		new_bucket->entries[0].nameOfdiseaseORc = malloc(sizeof(char) * (strlen(diseaseIDorc) + 1));
+		strcpy(new_bucket->entries[0].nameOfdiseaseORc, diseaseIDorc);
 		//field 2
 		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
 		insert(&new_bucket->entries[0].root, new_tree_node);
@@ -229,16 +229,16 @@ void insert_entry_to_bucket(bucket *last_bucket, char *diseaseID, list_node *new
 }
 
 
-void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *new_node, int capacity){
-	int hashValue = hash1(new_node->data->diseaseID, diseaseHashNum);
+void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, char * string, list_node *new_node, int capacity){
+	int hashValue = hash2(new_node->data->diseaseID, diseaseHashNum);
 	// printf("hash value: %d\n", hashValue);
 	if (diseaseHashTable[hashValue] == NULL)
 	{
 		diseaseHashTable[hashValue] = initialize_bucket(capacity);
 		//set first entry of bucket
 		//field 1
-		diseaseHashTable[hashValue]->entries[0].nameOfdisease = malloc(sizeof(char) * (strlen(new_node->data->diseaseID) + 1));
-		strcpy(diseaseHashTable[hashValue]->entries[0].nameOfdisease, new_node->data->diseaseID);
+		diseaseHashTable[hashValue]->entries[0].nameOfdiseaseORc = malloc(sizeof(char) * (strlen(string) + 1));
+		strcpy(diseaseHashTable[hashValue]->entries[0].nameOfdiseaseORc, string);
 		//field 2
 		rb_node * new_tree_node= newRBTNode(&new_node->data->entryDate);
 		insert(&diseaseHashTable[hashValue]->entries[0].root, new_tree_node);
@@ -248,13 +248,13 @@ void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *ne
 	}
 	else
 	{	
-		rb_node ** root = diseaseIDexists(diseaseHashTable[hashValue], new_node->data->diseaseID);
+		rb_node ** root = diseaseIDexists(diseaseHashTable[hashValue], string);
 		if (root == NULL)
 		{
 			bucket *last_bucket = diseaseHashTable[hashValue]; 
 			while (last_bucket->next != NULL) //get last bucket 
 				last_bucket = last_bucket->next;
-			insert_entry_to_bucket(last_bucket, new_node->data->diseaseID, new_node, capacity);
+			insert_entry_to_bucket(last_bucket, string, new_node, capacity);
 		}
 		else 
 		{
@@ -264,11 +264,48 @@ void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *ne
 	}
 }
 
+
+// print entries of bucket	
+void print_hash(bucket **HashTable, int HashNum){
+	printf("%d\n", HashNum);
+	for (int i = 0; i < HashNum; i++)
+	{
+		printf("%p\n", HashTable[i]);
+		if (HashTable[i] != NULL)
+		{
+			printf("cur entries: %d for bucket No: %d\n", HashTable[i]->currentNumberOfEntries, i);
+			for (int j = 0; j < HashTable[i]->currentNumberOfEntries; j++)
+			{
+			 	printf("name of entry %d: %s root: %p\n", j, HashTable[i]->entries[j].nameOfdiseaseORc, HashTable[i]->entries[j].root);
+			 	if (HashTable[i]->entries[j].root != NULL)
+			 	{
+			 		inorder(HashTable[i]->entries[j].root);
+			 	}
+			} 
+			bucket * last_bucket = HashTable[i]->next;
+			while (last_bucket != NULL){
+				for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
+				{
+			 		printf("name of entry %dk: %s root: %p\n", k, last_bucket->entries[k].nameOfdiseaseORc, last_bucket->entries[k].root);
+			 		if (last_bucket->entries[k].root != NULL)
+			 		{
+			 			inorder(last_bucket->entries[k].root);
+			 		}
+				}
+				last_bucket = last_bucket->next; 
+			}
+			printf("\n");
+		}
+	}
+
+}
+
+
 void free_bucket(bucket *buc){
 	for (int j = 0; j < buc->currentNumberOfEntries; j++)
 	{
-	 	// printf("name of entry %d: %s\n", j, buc->entries[j].nameOfdisease);
-	 	free(buc->entries[j].nameOfdisease); 	
+	 	// printf("name of entry %d: %s\n", j, buc->entries[j].nameOfdiseaseORc);
+	 	free(buc->entries[j].nameOfdiseaseORc); 	
 	 	free_rb(buc->entries[j].root);
 	}
 

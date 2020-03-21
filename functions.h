@@ -18,7 +18,10 @@ rb_node **diseaseIDexists(bucket *my_bucket, char *my_diseaseID);
 
 bucket * initialize_bucket(int cap);
 void insert_entry_to_bucket(bucket *last_bucket, char *diseaseID, list_node *new_node, int capacity);
-void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, list_node *new_node, int capacity);
+void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, char *string, list_node *new_node, int capacity);
+
+void print_hash(bucket **HashTable, int HashNum);
+
 
 void free_bucket(bucket *buc);
 void free_hash(bucket **diseaseHashTable, int diseaseHashNum);

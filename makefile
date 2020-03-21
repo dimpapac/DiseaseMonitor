@@ -12,9 +12,9 @@ clean:
 	rm -f $(OBJS) $(EXEC) 
 
 run: $(EXEC) 
-	./diseaseMonitor -p patientRecordsFile -h1 1 -h2 13 -b 70
+	./diseaseMonitor -p patientRecordsFile.txt -h1 1 -h2 1 -b 70
 	
 val: $(EXEC) $(CEXEC) $(QEXEC) $(HEXEC)
 	valgrind -v --leak-check=full --show-leak-kinds=all ./diseaseMonitor \
-	-p patientRecordsFile -h1 7 -h2 13 -b 50
+	-p patientRecordsFile.txt -h1 7 -h2 13 -b 50
 

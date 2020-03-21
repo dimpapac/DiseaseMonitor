@@ -48,16 +48,10 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	// // check number of entries
-	// fseek (input , 0 , SEEK_END);
-	// lSize = ftell (input);
-	// rewind (input);
-	// numOfrecords = (int) lSize/sizeof(rec);
-
-	printf("inputfile %s\n", inputfile);
-	printf("diseaseHashNum %d\n", diseaseHashNum);
-	printf("countryHashNum %d\n", countryHashNum);
-	printf("bucketsize %d bytes\n", bucketSize);
+	// printf("inputfile %s\n", inputfile);
+	// printf("diseaseHashNum %d\n", diseaseHashNum);
+	// printf("countryHashNum %d\n", countryHashNum);
+	// printf("bucketsize %d bytes\n", bucketSize);
 
 	//initialize hash tables 
 	bucket **diseaseHashTable = malloc(sizeof(bucket *) * diseaseHashNum);
@@ -86,7 +80,33 @@ int main(int argc, char *argv[])
 		// printf("\n");
 		// printf("%s\n", line);
 		entry* new_entry = line_to_entry(line);
+		if (new_entry == NULL)
+		{
+			printf("problem\n");
+			return -1;
+		}
 		// print_entry(new_entry);
+		
+		if(search(head,  new_entry->recordID) == 1){
+			printf("%s already exists, adios\n", new_entry->recordID);
+			free(new_entry->recordID);
+			free(new_entry->patientFirstName);
+			free(new_entry->patientLastName);
+			free(new_entry->diseaseID);
+			free(new_entry->country);
+			free(new_entry);
+			free(line);
+			line = NULL;
+
+			free_hash(diseaseHashTable, diseaseHashNum);
+			free_hash(countryHashTable, countryHashNum);
+			free_list(head);
+
+			fclose(input); //close file
+			free(inputfile);
+			return -1;
+		}
+		
 		// printf("%d\n", earlier(&new_entry->entryDate, &new_entry->exitDate));
 		if (earlier(&new_entry->entryDate, &new_entry->exitDate) == -1)
 		{
@@ -103,19 +123,20 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
+
 		// list_node *new_node = append(&head, new_entry);
 		list_node *new_node = sortedInsert(&head, new_entry);
-		
-		insert_to_hash(diseaseHashTable, diseaseHashNum, new_node, capacity); 
 
+		
+		insert_to_hash(diseaseHashTable, diseaseHashNum, new_node->data->diseaseID, new_node, capacity); 
+		insert_to_hash(countryHashTable, countryHashNum, new_node->data->country, new_node, capacity);
 		free(line);
 		line = NULL;
 	}
 
-
 	// print_list(head);
 
-	printf("capacity: %d\n", capacity);
+	// printf("capacity: %d\n", capacity);
 
 	size_t n;
 	//command prompt
@@ -127,12 +148,25 @@ int main(int argc, char *argv[])
 		lineSize = getline(&command, &n, stdin); //get line from stdin
 		command[lineSize - 1] = '\0';
 		printf("COMMAND: %s\n", command); 
-/*1*/	if (strncmp(command, "/globalDiseaseStats", strlen("/globalDiseaseStats")) == 0) {
+/*1*/	if (strncmp(command, "/globalDiseaseStats", strlen("/globalDiseaseStats")) == 0 || strncmp(command, "gds", strlen("gds")) == 0) {
 			// printf("/globalDiseaseStats\n");
 			char *token = strtok(command," ");
     		token = strtok(NULL, " ");
-			if (token != NULL)printf("%s\n",token);
-			
+			// if (token != NULL) printf("%s\n",token);
+			if (token == NULL) //no dates given
+			{
+				printf("oraios den edwses kamia imerominia\n");
+			}
+			else
+			{
+				char * date1 = token; //what 
+				printf("%s\n", date1);
+				token = strtok(NULL," ");
+				if (token == NULL)
+					printf("you have to give to dates\n");
+				else 
+					printf("%s\n",token);
+			}
 
 /*2*/	} else if (strncmp(command, "lrb", strlen("lrb")) == 0) {
 			// printf("lrb\n");
@@ -171,45 +205,16 @@ int main(int argc, char *argv[])
 			// printf("%s\n",token);
 			
 			
+		} else if (strcmp(command, "/exit\0") != 0){
+			printf("Wrong command try again\n");
 		}
 
 	} while(strcmp(command, "/exit\0") != 0);
 	if (command != NULL)
 		free(command);
 
-
-	// // print entries of bucket	
-	// printf("%d\n", diseaseHashNum);
-	// for (int i = 0; i < diseaseHashNum; i++)
-	// {
-	// 	printf("%p\n", diseaseHashTable[i]);
-	// 	if (diseaseHashTable[i] != NULL)
-	// 	{
-	// 		printf("cur entries: %d for bucket No: %d\n", diseaseHashTable[i]->currentNumberOfEntries, i);
-	// 		for (int j = 0; j < diseaseHashTable[i]->currentNumberOfEntries; j++)
-	// 		{
-	// 		 	printf("name of entry %d: %s root: %p\n", j, diseaseHashTable[i]->entries[j].nameOfdisease, diseaseHashTable[i]->entries[j].root);
-	// 		 	if (diseaseHashTable[i]->entries[j].root != NULL)
-	// 		 	{
-	// 		 		inorder(diseaseHashTable[i]->entries[j].root);
-	// 		 	}
-	// 		} 
-	// 		bucket * last_bucket = diseaseHashTable[i]->next;
-	// 		while (last_bucket != NULL){
-	// 			for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
-	// 			{
-	// 		 		printf("name of entry %dk: %s root: %p\n", k, last_bucket->entries[k].nameOfdisease, last_bucket->entries[k].root);
-	// 		 		if (last_bucket->entries[k].root != NULL)
-	// 		 		{
-	// 		 			inorder(last_bucket->entries[k].root);
-	// 		 		}
-	// 			}
-	// 			last_bucket = last_bucket->next; 
-	// 		}
-	// 		printf("\n");
-	// 	}
-	// }
-
+	print_hash(diseaseHashTable, diseaseHashNum);
+	print_hash(countryHashTable, countryHashNum);
 
 
 

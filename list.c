@@ -10,16 +10,21 @@ list_node * sortedInsert(list_node **head, entry *new_entry){
 	new_node->next = NULL;
 
 	// if (*head == NULL || (*head)->data->date >= new_entry->data->date) 
-	if (*head == NULL || earlier( &((*head)->data->entryDate), &(new_node->data->entryDate)) != 1)
+	if (*head == NULL || earlier( &((*head)->data->entryDate), &(new_node->data->entryDate)) == -1) // >
     { 
         new_node->next = *head; 
         *head = new_node; 
     } 
+    else if (earlier( &((*head)->data->entryDate), &(new_node->data->entryDate)) == 0)
+    {
+    	new_node->next = (*head)->next;
+    	(*head)->next = new_node;
+    }
     else
     { 
         current = *head; 
         // while (current->next!=NULL && current->next->data < new_node->data) 
-        while (current->next!=NULL && earlier(&(current->next->data->entryDate), &(new_node->data->entryDate)) == 1) 
+        while (current->next!=NULL && earlier(&(current->next->data->entryDate), &(new_node->data->entryDate)) != -1) //<=
         { 
             current = current->next; 
         } 
@@ -53,6 +58,21 @@ list_node* append(list_node **head, entry *new_entry){
 
 	return new_node;
 }
+
+//return 1 if id found in list
+//else 0
+int search(list_node* head, char *id) 
+{ 
+    list_node* current = head;  // Initialize current 
+    while (current != NULL) 
+    { 
+        if (strcmp(current->data->recordID, id) == 0) 
+            return 1; 
+        current = current->next; 
+    } 
+    return 0; 
+}
+
 
 void print_list(list_node *head){
 	// if (head == NULL)
