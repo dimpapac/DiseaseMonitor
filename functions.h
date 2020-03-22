@@ -26,4 +26,10 @@ void print_hash(bucket **HashTable, int HashNum);
 void free_bucket(bucket *buc);
 void free_hash(bucket **diseaseHashTable, int diseaseHashNum);
 
+////////////CLI functions/////////////////////////
+
+int recordPatientExit(list_node* head, char* recordID, char* exitDate);
+
+
+
 #endif

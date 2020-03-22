@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 		}
 		// print_entry(new_entry);
 		
-		if(search(head,  new_entry->recordID) == 1){
+		if(search(head,  new_entry->recordID) != NULL){
 			printf("%s already exists, adios\n", new_entry->recordID);
 			free(new_entry->recordID);
 			free(new_entry->patientFirstName);
@@ -138,8 +138,8 @@ int main(int argc, char *argv[])
 
 	// printf("capacity: %d\n", capacity);
 
-	size_t n;
 	//command prompt
+	size_t n;
 	char *command = NULL;
 	do {
 		if (command != NULL)
@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
 			if (token == NULL) //no dates given
 			{
 				printf("oraios den edwses kamia imerominia\n");
+				// stats(diseaseHashTable);
 			}
 			else
 			{
@@ -163,43 +164,87 @@ int main(int argc, char *argv[])
 				printf("%s\n", date1);
 				token = strtok(NULL," ");
 				if (token == NULL)
-					printf("you have to give to dates\n");
+					printf("you have to give two dates\n");
 				else 
 					printf("%s\n",token);
 			}
 
-/*2*/	} else if (strncmp(command, "lrb", strlen("lrb")) == 0) {
-			// printf("lrb\n");
+/*2*/	} else if (strncmp(command, "/diseaseFrequency", strlen("/diseaseFrequency")) == 0 || strncmp(command, "df", strlen("df")) == 0) {
+			// printf("/diseaseFrequency\n");
+			char *token = strtok(command," ");
+			if (token == NULL) continue;
+    		token = strtok(NULL, "\0");
+    		if (token == NULL) continue;
+			printf("%s\n",token);
+			
+
+/*3*/	} else if (strncmp(command, "/topk-Diseases", strlen("/topk-Diseases")) == 0 || strncmp(command, "/topd", strlen("/topd")) == 0) {
+			// printf("/topk-Diseases\n");
+			
+
+
+/*4*/	} else if (strncmp(command, "/topk-Countries", strlen("/topk-Countries")) == 0 || strncmp(command, "topkc", strlen("topkc")) == 0) {
+			// printf("/topk-Countries\n");
+			
 			char *token = strtok(command," ");
     		token = strtok(NULL, " ");
 			// printf("%s\n",token);
 			
 
-/*3*/	} else if (strncmp(command, "ins", strlen("ins")) == 0) {
-			// printf("ins\n");
-			
+/*5*/	} else if (strncmp(command, "/insertPatientRecord", strlen("/insertPatientRecord")) == 0 || strncmp(command, "ipr", strlen("ipr")) == 0) {
+			// printf("insertPatientRecord\n");
+			char *cmd = strtok(command," ");
+			if (cmd == NULL) continue;
+			char *line = strtok(NULL, "\0");
+			if (line == NULL) continue;
+			entry* new_entry = line_to_entry(line);
+			if (new_entry == NULL)
+			{
+				printf("%s\n", "something was wrong with your entry");
+				continue;
+			}
+
+			//check whether id already exists
+			list_node *retVal = search(head, new_entry->recordID);
+			if (retVal != NULL)
+			{
+				printf("id already exists\n");
+				continue;
+			}
+
+			list_node *new_node = sortedInsert(&head, new_entry);
+			insert_to_hash(diseaseHashTable, diseaseHashNum, new_node->data->diseaseID, new_node, capacity); 
+			insert_to_hash(countryHashTable, countryHashNum, new_node->data->country, new_node, capacity);
+			print_list(head);
 
 
-/*4*/	} else if (strncmp(command, "find", strlen("find")) == 0) {
-			// printf("find\n");
-			
-			char *token = strtok(command," ");
-    		token = strtok(NULL, " ");
-			// printf("%s\n",token);
-			
 
-/*5*/	} else if (strncmp(command, "delete", strlen("delete")) == 0) {
-			// printf("delete\n");
-			printf("delete not implemented\n");
-/*6*/	} else if (strncmp(command, "vote ", strlen("vote ")) == 0) {
-			// printf("vote\n");
-			char *token = strtok(command," ");
-    		token = strtok(NULL, " ");
-			// printf("%s\n",token);
+/*6*/	} else if (strncmp(command, "/recordPatientExit", strlen("/recordPatientExit")) == 0 || strncmp(command, "rpe", strlen("rpt")) == 0) {
+			// printf("recordPatientExit\n");
+			char *recordID = strtok(command," ");
+			char *exitDate;
+			recordID = strtok(NULL, " ");
+			if (recordID == NULL){
+				printf("no recordID given\n");
+				free(recordID);
+				continue;
+			}
+			else
+			{
+				exitDate = strtok(NULL, " ");
+				if (exitDate == NULL){
+					printf("no exitDate given\n");
+					free(exitDate);
+					continue;
+				}
+			}
+		
+			int retVal = recordPatientExit(head, recordID, exitDate);
+			if (retVal == -1)
+				printf("something was wrong with your command\n");			
 
-
-/*7*/	} else if (strncmp(command, "load", strlen("load")) == 0) {
-			// printf("load\n");
+/*7*/	} else if (strncmp(command, "/numCurrentPatients", strlen("/numCurrentPatients")) == 0) {
+			// printf("numCurrentPatients\n");
 			char *token = strtok(command," ");
     		token = strtok(NULL, " ");
 			// printf("%s\n",token);
@@ -215,7 +260,6 @@ int main(int argc, char *argv[])
 
 	print_hash(diseaseHashTable, diseaseHashNum);
 	print_hash(countryHashTable, countryHashNum);
-
 
 
 	free_hash(diseaseHashTable, diseaseHashNum);

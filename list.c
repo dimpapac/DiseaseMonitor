@@ -61,16 +61,16 @@ list_node* append(list_node **head, entry *new_entry){
 
 //return 1 if id found in list
 //else 0
-int search(list_node* head, char *id) 
+list_node *search(list_node* head, char *id) 
 { 
     list_node* current = head;  // Initialize current 
     while (current != NULL) 
     { 
-        if (strcmp(current->data->recordID, id) == 0) 
-            return 1; 
+        if (strcmp(current->data->recordID, id) == 0)        	
+            return current; 
         current = current->next; 
     } 
-    return 0; 
+    return NULL; 
 }
 
 

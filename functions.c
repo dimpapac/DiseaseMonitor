@@ -332,3 +332,70 @@ void free_hash(bucket **diseaseHashTable, int diseaseHashNum){
 	}
 	free(diseaseHashTable);
 }
+
+
+
+
+
+////////////CLI functions/////////////////////////
+
+
+
+int recordPatientExit(list_node* head, char* recordID, char* exitDate){
+	
+	char *day = strtok(exitDate, "-");
+	if (day == NULL)
+		return -1;
+	int iday = atoi(day);
+
+	char *month = strtok(NULL, "-");
+	if (month == NULL)
+		return -1;
+	int imonth = atoi(month);
+
+	char *year = strtok(NULL, " ");
+	if (year == NULL)
+		return -1;
+	int iyear = atoi(year); 
+
+	if (iday == 0 || imonth == 0 || iyear == 0)
+	{
+		printf("wrong date\n");
+		return -1;
+	}
+
+	date given_date;
+	set_date(iday, imonth, iyear, &given_date);
+
+	list_node *retVal = search(head, recordID);
+	if (retVal == NULL)
+	{
+		printf("id not found\n");
+		return -1;
+	}
+	else
+	{
+		printf("id found\n");
+		// print_entry(retVal->data);
+		if (earlier(&given_date, &retVal->data->entryDate) == 1)
+		{
+			printf("Given date is earlier than patient's entryDate\n");
+			return -2;
+		}
+		else
+		{
+			set_date( given_date.day, given_date.month, given_date.year, &retVal->data->exitDate);
+			print_entry(retVal->data);
+			return 0;
+		}
+	} 
+
+	return -1;
+}
+
+
+
+
+// void stats(bucket **HashTable){
+	
+// }

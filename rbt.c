@@ -247,6 +247,21 @@ rb_node * minValueNode(rb_node* node) {
 } 
 
 
+//return 1 if date was found in the tree
+list_node * rbtSearch(rb_node *root, date my_date){
+    if (root == NULL)
+        return NULL;
+    
+    if (earlier(&root->data_date, &my_date) == 0) //found
+        return root->listPtr;
+    else if (earlier(&root->data_date, &my_date) == -1) //
+        rbtSearch(root->left, my_date);
+    else
+        rbtSearch(root->right, my_date);
+
+    return NULL;
+}
+
 //given a pointer to a red black node 
 //prints its data 
 void print_rb_node(rb_node *node){
