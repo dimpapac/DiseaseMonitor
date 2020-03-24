@@ -178,10 +178,10 @@ int main(int argc, char *argv[])
 			// printf("/diseaseFrequency\n");
 			char *token = strtok(command," ");
 			if (token == NULL) continue;
-    		printf("%s\n", token);
+    		// printf("%s\n", token);
     		char *virusName = strtok(NULL, " ");
     		if (virusName == NULL) continue;
-			printf("%s\n", virusName);
+			// printf("%s\n", virusName);
 
 			char *date1 = strtok(NULL," ");
 			if (date1 == NULL){
@@ -242,6 +242,13 @@ int main(int argc, char *argv[])
 			if (retVal != NULL)
 			{
 				printf("id already exists\n");
+				free(new_entry->recordID);
+				free(new_entry->patientFirstName);
+				free(new_entry->patientLastName);
+				free(new_entry->diseaseID);
+				free(new_entry->country);
+				free(new_entry);
+				line = NULL;
 				continue;
 			}
 

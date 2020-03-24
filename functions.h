@@ -40,7 +40,7 @@ void frequency(bucket **HashTable, int HashNum, char *date1, char *date2, char *
 
 void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *date2, char *virusName, char *country);
 
-int numberOfPatients(rb_node *root);
+int numberOfPatients(rb_node *root, char *disease);
 void currentPatients(bucket **HashTable, int HashNum);
 
 void currentPatientsWithDisease(bucket **HashTable,int HashNum, char *disease);

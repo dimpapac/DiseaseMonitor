@@ -475,7 +475,7 @@ void stats(bucket **HashTable, int HashNum){
 		// printf("%p\n", HashTable[i]);
 		if (HashTable[i] != NULL)
 		{
-			printf("cur entries: %d for bucket No: %d\n", HashTable[i]->currentNumberOfEntries, i);
+			// printf("cur entries: %d for bucket No: %d\n", HashTable[i]->currentNumberOfEntries, i);
 			for (int j = 0; j < HashTable[i]->currentNumberOfEntries; j++)
 			{
 			 	printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
@@ -496,7 +496,7 @@ void stats(bucket **HashTable, int HashNum){
 				}
 				last_bucket = last_bucket->next; 
 			}
-			printf("\n");
+			// printf("\n");
 		}
 	}
 
@@ -631,25 +631,27 @@ void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *da
 
 
 
-int numberOfPatients(rb_node *root){
+int numberOfPatients(rb_node *root, char *disease){
     // printf("kalispera\n");
     if (root == NULL)
         return 0;
 
-    
+
 	int k = 0;
 	list_node *current = root->listPtr;
 	while(current != NULL && earlier(&current->data->entryDate, &root->data_date) == 0){
-		if (current->data->exitDate.day == 1 && current->data->exitDate.month == 1 && current->data->exitDate.year == 1)
+		if (current->data->exitDate.day == 1 \
+			&& current->data->exitDate.month == 1 \
+			&& current->data->exitDate.year == 1  \
+			&& strcmp(current->data->diseaseID, disease) == 0)
 		{	
 			k++;
 		}
 			current = current->next;
 	}
-	return k + numberOfPatients(root->left) + numberOfPatients(root->right);
-    
+	return k + numberOfPatients(root->left, disease) + numberOfPatients(root->right, disease);
+  
 
-    return (numberOfPatients(root->left) + numberOfPatients(root->right)); 
 }
 
 
@@ -667,7 +669,7 @@ void currentPatients(bucket **HashTable, int HashNum){
 			 	printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
 			 	if (HashTable[i]->entries[j].root != NULL)
 			 	{
-			 		printf("number of patients: %d\n" ,numberOfPatients(HashTable[i]->entries[j].root));
+			 		printf("number of patients: %d\n" ,numberOfPatients(HashTable[i]->entries[j].root, HashTable[i]->entries[j].nameOfdiseaseORc));
 			 	}
 			} 
 			bucket * last_bucket = HashTable[i]->next;
@@ -677,7 +679,7 @@ void currentPatients(bucket **HashTable, int HashNum){
 			 		printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
 			 		if (last_bucket->entries[k].root != NULL)
 			 		{
-			 			printf("number of patients: %d\n" ,numberOfPatients(last_bucket->entries[k].root));
+			 			printf("number of patients: %d\n" ,numberOfPatients(last_bucket->entries[k].root, last_bucket->entries[k].nameOfdiseaseORc));
 			 		}
 				}
 				last_bucket = last_bucket->next; 
@@ -702,7 +704,7 @@ void currentPatientsWithDisease(bucket **HashTable, int HashNum, char * disease)
 	 	// printf("Disease name: %s ", HashTable[hashValue]->entries[j].nameOfdiseaseORc);
 	 	if (strcmp(HashTable[hashValue]->entries[j].nameOfdiseaseORc, disease) == 0 && HashTable[hashValue]->entries[j].root != NULL)
 	 	{
-	 		printf("number of patients for disease %s: %d\n" , disease, numberOfPatients(HashTable[hashValue]->entries[j].root));
+	 		printf("number of patients for disease %s: %d\n" , disease, numberOfPatients(HashTable[hashValue]->entries[j].root, disease));
 	 		return;
 	 	}
 	} 
@@ -713,7 +715,7 @@ void currentPatientsWithDisease(bucket **HashTable, int HashNum, char * disease)
 	 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
 	 		if (strcmp(last_bucket->entries[k].nameOfdiseaseORc, disease) == 0 && last_bucket->entries[k].root != NULL)
 	 		{
-	 			printf("number of patients for disease %s: %d\n" , disease, numberOfPatients(last_bucket->entries[k].root));
+	 			printf("number of patients for disease %s: %d\n" , disease, numberOfPatients(last_bucket->entries[k].root, disease));
 	 			return;
 	 		}
 		}
