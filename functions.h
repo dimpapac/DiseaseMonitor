@@ -29,6 +29,22 @@ void free_hash(bucket **diseaseHashTable, int diseaseHashNum);
 ////////////CLI functions/////////////////////////
 
 int recordPatientExit(list_node* head, char* recordID, char* exitDate);
+int numberOfOutbreaks(rb_node *root);
+void stats(bucket **HashTable, int HashNum);
+
+void stats2dates(bucket **diseaseHashTable, int diseaseHashNum, char *date1, char *date2);
+
+
+int numberOfOutbreaks2dates1country(rb_node *root, date date1, date date2, char *country, char *virusName);
+void frequency(bucket **HashTable, int HashNum, char *date1, char *date2, char *virusName);
+
+void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *date2, char *virusName, char *country);
+
+int numberOfPatients(rb_node *root);
+void currentPatients(bucket **HashTable, int HashNum);
+
+void currentPatientsWithDisease(bucket **HashTable,int HashNum, char *disease);
+
 
 
 

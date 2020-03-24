@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
 		// list_node *new_node = append(&head, new_entry);
 		list_node *new_node = sortedInsert(&head, new_entry);
 
-		
 		insert_to_hash(diseaseHashTable, diseaseHashNum, new_node->data->diseaseID, new_node, capacity); 
 		insert_to_hash(countryHashTable, countryHashNum, new_node->data->country, new_node, capacity);
 		free(line);
@@ -151,34 +150,68 @@ int main(int argc, char *argv[])
 /*1*/	if (strncmp(command, "/globalDiseaseStats", strlen("/globalDiseaseStats")) == 0 || strncmp(command, "gds", strlen("gds")) == 0) {
 			// printf("/globalDiseaseStats\n");
 			char *token = strtok(command," ");
+			if (token == NULL) continue;
     		token = strtok(NULL, " ");
 			// if (token != NULL) printf("%s\n",token);
 			if (token == NULL) //no dates given
 			{
-				printf("oraios den edwses kamia imerominia\n");
-				// stats(diseaseHashTable);
+				stats(diseaseHashTable, diseaseHashNum);
 			}
 			else
 			{
 				char * date1 = token; //what 
-				printf("%s\n", date1);
-				token = strtok(NULL," ");
-				if (token == NULL)
+				// printf("%s\n", date1);
+				char *date2 = strtok(NULL," ");
+				if (date2 == NULL){
 					printf("you have to give two dates\n");
-				else 
-					printf("%s\n",token);
+					continue;
+				}
+				else {
+					// printf("%s\n",date2);
+					//call function with 2 dates 
+					stats2dates(diseaseHashTable, diseaseHashNum, date1, date2);
+
+				}
 			}
 
 /*2*/	} else if (strncmp(command, "/diseaseFrequency", strlen("/diseaseFrequency")) == 0 || strncmp(command, "df", strlen("df")) == 0) {
 			// printf("/diseaseFrequency\n");
 			char *token = strtok(command," ");
 			if (token == NULL) continue;
-    		token = strtok(NULL, "\0");
-    		if (token == NULL) continue;
-			printf("%s\n",token);
+    		printf("%s\n", token);
+    		char *virusName = strtok(NULL, " ");
+    		if (virusName == NULL) continue;
+			printf("%s\n", virusName);
+
+			char *date1 = strtok(NULL," ");
+			if (date1 == NULL){
+				printf("you have to give two dates\n");
+				continue;
+			}
+
+			char *date2 = strtok(NULL," ");
+			if (date2 == NULL){
+				printf("you have to give two dates\n");
+				continue;
+			}
+
+			char *country = strtok(NULL," ");
+			if (country == NULL)
+			{
+				// printf("no country \n");
+				frequency(diseaseHashTable, diseaseHashNum, date1, date2, virusName);
+				
+			}
+			else
+			{
+				printf("country: %s\n", country);
+				frequencyWithCountry(countryHashTable, countryHashNum, date1, date2, virusName, country);
+
+			}
+
 			
 
-/*3*/	} else if (strncmp(command, "/topk-Diseases", strlen("/topk-Diseases")) == 0 || strncmp(command, "/topd", strlen("/topd")) == 0) {
+/*3*/	} else if (strncmp(command, "/topk-Diseases", strlen("/topk-Diseases")) == 0 || strncmp(command, "/topkd", strlen("/topkd")) == 0) {
 			// printf("/topk-Diseases\n");
 			
 
@@ -243,11 +276,21 @@ int main(int argc, char *argv[])
 			if (retVal == -1)
 				printf("something was wrong with your command\n");			
 
-/*7*/	} else if (strncmp(command, "/numCurrentPatients", strlen("/numCurrentPatients")) == 0) {
+/*7*/	} else if (strncmp(command, "/numCurrentPatients", strlen("/numCurrentPatients")) == 0 || strncmp(command, "ncp", strlen("ncp")) == 0) {
 			// printf("numCurrentPatients\n");
-			char *token = strtok(command," ");
-    		token = strtok(NULL, " ");
-			// printf("%s\n",token);
+			char *token = strtok(command," "); ///numCur...
+			if (token == NULL) continue;
+    		char * disease = strtok(NULL, " ");
+			if (disease == NULL)
+			{
+				currentPatients(diseaseHashTable, diseaseHashNum);
+			}
+			else
+			{
+				printf("%s\n",disease);
+				currentPatientsWithDisease(diseaseHashTable, diseaseHashNum, disease);
+			}
+
 			
 			
 		} else if (strcmp(command, "/exit\0") != 0){
@@ -258,8 +301,8 @@ int main(int argc, char *argv[])
 	if (command != NULL)
 		free(command);
 
-	print_hash(diseaseHashTable, diseaseHashNum);
-	print_hash(countryHashTable, countryHashNum);
+	// print_hash(diseaseHashTable, diseaseHashNum);
+	// print_hash(countryHashTable, countryHashNum);
 
 
 	free_hash(diseaseHashTable, diseaseHashNum);
