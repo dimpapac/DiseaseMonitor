@@ -3,6 +3,8 @@
 
 #include "structs.h"
 #include "list.h"
+#include "heap.h"
+
 
 void print_entry(entry *my_entry);
 entry* line_to_entry(char *line);
@@ -45,6 +47,8 @@ void currentPatients(bucket **HashTable, int HashNum);
 
 void currentPatientsWithDisease(bucket **HashTable,int HashNum, char *disease);
 
+void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int mod);
+void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod);
 
 
 

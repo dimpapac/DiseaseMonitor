@@ -6,6 +6,7 @@
 #include "functions.h"
 #include "list.h"
 #include "rbt.h"
+#include "heap.h"
 
 
 int main(int argc, char *argv[])
@@ -211,18 +212,95 @@ int main(int argc, char *argv[])
 
 			
 
-/*3*/	} else if (strncmp(command, "/topk-Diseases", strlen("/topk-Diseases")) == 0 || strncmp(command, "/topkd", strlen("/topkd")) == 0) {
+/*3*/	} else if (strncmp(command, "/topk-Diseases", strlen("/topk-Diseases")) == 0 || strncmp(command, "topkd", strlen("topkd")) == 0) {
 			// printf("/topk-Diseases\n");
-			
+			char *token = strtok(command," "); //topk
+			if (token == NULL) continue;
+    		char *ks = strtok(NULL, " ");
+    		if (ks == NULL){
+    			printf("you have to give a number\n");
+    			continue;
+    		}
+    		int k = atoi(ks);
+    		if (k == 0)
+    		{
+    			printf("k must be a number\n");
+    			continue;
+    		}
+    		char *country = strtok(NULL, " ");
+    		if (country == NULL){
+    			printf("you have to give a country\n");
+    			continue;
+    		}
+    		char *date1 = strtok(NULL, " ");
+			// if (token != NULL) printf("%s\n",token);
+			if (date1 == NULL) //no dates given
+			{
+				// printf("no dates\n");
+				// stats(diseaseHashTable, diseaseHashNum);
+
+				topk(countryHashTable, countryHashNum, k, country, 0);
+			}
+			else
+			{
+				// printf("%s\n", date1);
+				char *date2 = strtok(NULL," ");
+				if (date2 == NULL){
+					printf("you have to give two dates\n");
+					continue;
+				}
+				else {
+					// printf("%s\n",date2);
+					//call function with 2 dates 
+					// stats2dates(diseaseHashTable, diseaseHashNum, date1, date2);
+
+				}
+			}
 
 
 /*4*/	} else if (strncmp(command, "/topk-Countries", strlen("/topk-Countries")) == 0 || strncmp(command, "topkc", strlen("topkc")) == 0) {
 			// printf("/topk-Countries\n");
-			
-			char *token = strtok(command," ");
-    		token = strtok(NULL, " ");
-			// printf("%s\n",token);
-			
+			char *token = strtok(command," "); //topk
+			if (token == NULL) continue;
+    		char *ks = strtok(NULL, " ");
+    		if (ks == NULL){
+    			printf("you have to give a number\n");
+    			continue;
+    		}
+    		int k = atoi(ks);
+    		if (k == 0)
+    		{
+    			printf("k must be a number\n");
+    			continue;
+    		}
+    		char *disease = strtok(NULL, " ");
+    		if (disease == NULL){
+    			printf("you have to give a disease\n");
+    			continue;
+    		}
+    		char *date1 = strtok(NULL, " ");
+			// if (token != NULL) printf("%s\n",token);
+			if (date1 == NULL) //no dates given
+			{
+				printf("no dates\n");
+				// stats(diseaseHashTable, diseaseHashNum);
+				topk(diseaseHashTable, diseaseHashNum, k, disease, 1);
+			}
+			else
+			{
+				// printf("%s\n", date1);
+				char *date2 = strtok(NULL," ");
+				if (date2 == NULL){
+					printf("you have to give two dates\n");
+					continue;
+				}
+				else {
+					// printf("%s\n",date2);
+					//call function with 2 dates 
+					// stats2dates(diseaseHashTable, diseaseHashNum, date1, date2);
+
+				}
+			}
 
 /*5*/	} else if (strncmp(command, "/insertPatientRecord", strlen("/insertPatientRecord")) == 0 || strncmp(command, "ipr", strlen("ipr")) == 0) {
 			// printf("insertPatientRecord\n");

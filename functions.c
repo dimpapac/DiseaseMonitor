@@ -3,9 +3,11 @@
 #include <string.h>
 
 
-#include "functions.h"
 #include "structs.h"
 #include "rbt.h"
+#include "functions.h"
+#include "heap.h"
+
 
 
 void print_entry(entry *my_entry){
@@ -724,3 +726,120 @@ void currentPatientsWithDisease(bucket **HashTable, int HashNum, char * disease)
 
 	printf("disease not found\n");
 }
+
+
+
+
+
+///////////////////////////topk/////////////////////////////
+
+
+void fromListToHeap(heapListNode *heapListHead, int k){
+	heap *my_heap = (heap*) newHeap();
+	heapListNode *current = heapListHead;
+	while (current != NULL){
+		insertHeap(my_heap, current->hnode);
+		current = current->next;
+	}
+
+	for (int i = 0; i < k; i++)
+	{	
+		if (my_heap->size == 0)
+		{
+			break;
+		}
+		printf("%s %d\n", my_heap->root->stringData, my_heap->root->data);
+		deleteRoot(my_heap);
+	}
+
+	if (my_heap->size > 0)
+	{
+		int tmp = my_heap->size;
+		for (int i = 0; i < tmp; ++i)
+		{
+			deleteRoot(my_heap);
+		}
+	}
+	
+	free(my_heap);
+	freeHeapList(heapListHead);
+
+}
+
+
+
+void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int mod){
+
+    if (root == NULL)
+		return;
+
+	list_node *current = root->listPtr;
+	while(current != NULL && earlier(&current->data->entryDate, &root->data_date) == 0){
+		if (mod == 0)
+		{
+			if (strcmp(current->data->country, root->listPtr->data->country) == 0)
+			{	
+				updateHeapList(heapListHead, current->data->diseaseID, 1);
+			}
+		}
+		else if (mod == 1)
+		{
+			if (strcmp(current->data->diseaseID, root->listPtr->data->diseaseID) == 0)
+			{	
+				updateHeapList(heapListHead, current->data->country, 1);
+			}
+		}	
+			
+		current = current->next;
+	}
+	
+	topk2(root->left, heapListHead, k,  country, mod);
+ 
+	topk2(root->right, heapListHead, k,  country, mod);
+	
+}
+
+
+
+void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod){
+	printf("k top %d of %s\n", kk, country);
+
+	int hashValue = hash2(country, HashNum);
+	heapListNode *heapListHead = NULL;
+
+	
+	for (int j = 0; j < HashTable[hashValue]->currentNumberOfEntries; j++)
+	{
+	 	// printf("Disease name: %s ", HashTable[hashValue]->entries[j].nameOfdiseaseORc);
+	 	if (strcmp(HashTable[hashValue]->entries[j].nameOfdiseaseORc, country) == 0 && HashTable[hashValue]->entries[j].root != NULL)
+	 	{
+	 		//edw exw to dentro
+	 		// printf("root %p\n", HashTable[hashValue]->entries[j].root);
+	 		topk2(HashTable[hashValue]->entries[j].root, &heapListHead, kk, country, mod);
+	 		// printHeapList(heapListHead);
+	 		fromListToHeap(heapListHead, kk);
+	 		return;
+	 	}
+	} 
+	bucket * last_bucket = HashTable[hashValue]->next;
+	while (last_bucket != NULL){
+		for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
+		{
+	 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+	 		if (strcmp(last_bucket->entries[k].nameOfdiseaseORc, country) == 0 && last_bucket->entries[k].root != NULL)
+	 		{
+	 			//edw exw to dentro
+	 			// printf("root %p\n", last_bucket->entries[k].root);
+	 			topk2(last_bucket->entries[k].root, &heapListHead, kk, country, mod);
+	 			// printHeapList(heapListHead);
+	 			fromListToHeap(heapListHead, kk);
+	 			return;
+	 		}
+		}
+		last_bucket = last_bucket->next; 
+	}
+
+	printf("country not found\n");
+}
+
+

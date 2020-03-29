@@ -58,7 +58,26 @@ typedef struct b{
 
 // capacity = (bucketSize - sizeof(struct b*) - sizeof(int) )/ sizeof(bucket_entry)
 
+typedef struct heapnode{
+	int data;
+	char *stringData;	
 
+	struct heapnode *left, *right, *parent, *prevTail; 
+}heap_node;
+
+typedef struct heap{
+	heap_node *root, *tail;
+	int size;
+}heap;
+
+typedef struct heap_list_node{
+	heap_node *hnode;
+	struct heap_list_node *next;
+}heapListNode;
+
+typedef struct list{
+	heapListNode **heapListHead;
+}HeapList;
 
 
 #endif

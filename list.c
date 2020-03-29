@@ -1,6 +1,8 @@
 #include "list.h"
 #include "functions.h"
 #include "structs.h"
+#include "heap.h"
+
 
 list_node * sortedInsert(list_node **head, entry *new_entry){
 	list_node *current;
@@ -79,7 +81,7 @@ void print_list(list_node *head){
 	// 	return;
 
 	while(head != NULL){
-		printf("kalispera apo print list\n");
+		// printf("kalispera apo print list\n");
 		print_entry(head->data);
 		head = head->next;
 	}
