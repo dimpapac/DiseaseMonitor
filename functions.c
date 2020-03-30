@@ -22,65 +22,101 @@ void print_entry(entry *my_entry){
 	printf("\n");
 }
 
-
+//makes an entry from a line
 entry* line_to_entry(char *line){
 	entry *my_entry = malloc(sizeof(entry));
 	// printf("%s\n", line);
 	
 	char *token = strtok(line," ");
-    if (token == NULL)
+    if (token == NULL){
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->recordID = malloc(sizeof (char) * (strlen(token)+1));
     strcpy(my_entry->recordID, token);
     
     token = strtok(NULL, " ");
-    if (token == NULL)
+    if (token == NULL){
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->patientFirstName = malloc(sizeof (char) * (strlen(token)+1));
     strcpy(my_entry->patientFirstName, token);
 
     token = strtok(NULL, " ");
-    if (token == NULL)
+    if (token == NULL){
+    	free(my_entry->patientFirstName);
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->patientLastName = malloc(sizeof (char) * (strlen(token)+1));
     strcpy(my_entry->patientLastName, token);
 
     token = strtok(NULL, " ");
-    if (token == NULL)
+    if (token == NULL){
+    	free(my_entry->patientLastName);
+    	free(my_entry->patientFirstName);
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->diseaseID = malloc(sizeof (char) * (strlen(token)+1));
     strcpy(my_entry->diseaseID, token);
 
     token = strtok(NULL, " ");
-    if (token == NULL)
+    if (token == NULL){
+    	free(my_entry->diseaseID);
+    	free(my_entry->patientLastName);
+    	free(my_entry->patientFirstName);
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->country = malloc(sizeof (char) * (strlen(token)+1));
     strcpy(my_entry->country, token);
 
     token = strtok(NULL, "-");
-    if (token == NULL)
+    if (token == NULL){
+    	free(my_entry->country);
+    	free(my_entry->diseaseID);
+    	free(my_entry->patientLastName);
+    	free(my_entry->patientFirstName);
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->entryDate.day = atoi(token);
 
     token = strtok(NULL, "-");
-    if (token == NULL)
+    if (token == NULL){
+    	// free(my_entry->entryDate);
+    	free(my_entry->country);
+    	free(my_entry->diseaseID);
+    	free(my_entry->patientLastName);
+    	free(my_entry->patientFirstName);
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->entryDate.month = atoi(token);
 
     token = strtok(NULL, " ");
-    if (token == NULL)
+    if (token == NULL){
+    	// free(my_entry->entryDate);
+    	free(my_entry->country);
+    	free(my_entry->diseaseID);
+    	free(my_entry->patientLastName);
+    	free(my_entry->patientFirstName);
+    	free(my_entry->recordID);
+    	free(my_entry);
     	return NULL;
+    }
     my_entry->entryDate.year = atoi(token);
-
-	// printf("entry Date: %d/%d/%d \n", my_entry->entryDate.day, my_entry->entryDate.month, my_entry->entryDate.year);
-
 
     // token = strtok(NULL, " ");
     token = strtok(NULL, "-");
-    // if (token == NULL)
-    	// return NULL;
-    // printf("token _%s_\n", token); 
-    // if (strlen(token) == 3)
     if (token == NULL)
     {
     	my_entry->exitDate.day = 1;
@@ -92,14 +128,29 @@ entry* line_to_entry(char *line){
 	    my_entry->exitDate.day = atoi(token);
 	    
 	    token = strtok(NULL,"-");
-	    if (token == NULL)
+	    if (token == NULL){
+	    	// free(my_entry->entryDate);
+	    	free(my_entry->country);
+	    	free(my_entry->diseaseID);
+	    	free(my_entry->patientLastName);
+	    	free(my_entry->patientFirstName);
+	    	free(my_entry->recordID);
+	    	free(my_entry);
     		return NULL;
+	    }
 	    // printf("%s\n", token);
 	    my_entry->exitDate.month = atoi(token);
 
 	    token = strtok(NULL," ");
-	    if (token == NULL)
+	    if (token == NULL){
+	    	free(my_entry->country);
+	    	free(my_entry->diseaseID);
+	    	free(my_entry->patientLastName);
+	    	free(my_entry->patientFirstName);
+	    	free(my_entry->recordID);
+	    	free(my_entry);
     		return NULL;
+	    }
 	    // printf("%s\n", token);
 	    my_entry->exitDate.year = atoi(token);
 
@@ -165,7 +216,7 @@ int earlier(date *date1, date *date2){ //call this with &
 	return -1; //date1 is after date2
 }
 
-
+//initialize bucket of hash table
 bucket * initialize_bucket(int cap){
 	bucket * new_bucket = malloc(sizeof(bucket));
 	new_bucket->next = NULL;
@@ -178,7 +229,10 @@ bucket * initialize_bucket(int cap){
 	return new_bucket;
 }
 
-
+//check if a string exists in a bucket
+//return null if it doesn't exist
+//else
+//return the rbt_root of the existing string
 rb_node **diseaseIDexists(bucket *my_bucket, char *my_diseaseID){
 	bucket * last_bucket = my_bucket;
 	while (last_bucket != NULL){
@@ -230,10 +284,11 @@ void insert_entry_to_bucket(bucket *last_bucket, char *diseaseIDorc, list_node *
 	}
 }
 
-
+//insert an entry to a hash table
 void insert_to_hash(bucket **diseaseHashTable, int diseaseHashNum, char * string, list_node *new_node, int capacity){
-	int hashValue = hash2(new_node->data->diseaseID, diseaseHashNum);
-	// printf("hash value: %d\n", hashValue);
+	// int hashValue = hash2(new_node->data->diseaseID, diseaseHashNum);
+	int hashValue = hash2(string, diseaseHashNum);
+	// printf("hash value: for %d %s\n", hashValue, string);
 	if (diseaseHashTable[hashValue] == NULL)
 	{
 		diseaseHashTable[hashValue] = initialize_bucket(capacity);
@@ -342,7 +397,7 @@ void free_hash(bucket **diseaseHashTable, int diseaseHashNum){
 
 ////////////CLI functions/////////////////////////
 
-
+//makes a struct date from a string
 int charToDate(char* dateString, date *dateToReturn){
 	char *day = strtok(dateString, "-");
 	if (day == NULL)
@@ -405,7 +460,7 @@ int recordPatientExit(list_node* head, char* recordID, char* exitDate){
 	}
 	else
 	{
-		printf("id found\n");
+		// printf("id found\n");
 		// print_entry(retVal->data);
 		if (earlier(&given_date, &retVal->data->entryDate) == 1)
 		{
@@ -415,7 +470,7 @@ int recordPatientExit(list_node* head, char* recordID, char* exitDate){
 		else
 		{
 			set_date( given_date.day, given_date.month, given_date.year, &retVal->data->exitDate);
-			print_entry(retVal->data);
+			// print_entry(retVal->data);
 			return 0;
 		}
 	} 
@@ -432,6 +487,7 @@ int numberOfOutbreaks(rb_node *root){
 }
 
 // date1<= root->date <=date2
+//return the number of outbreaks from a red black tree between date1 and date2
 int numberOfOutbreaks2dates(rb_node *root, date date1, date date2){
     if (root == NULL )
         return 0;
@@ -446,6 +502,7 @@ int numberOfOutbreaks2dates(rb_node *root, date date1, date date2){
 
 
 // date1<= root->date <=date2
+//return the number of outbreaks of disease for country from a red black tree between date1 and date2 
 int numberOfOutbreaks2dates1country(rb_node *root, date date1, date date2, char *country, char *virusName){
     // printf("kalispera\n");
     if (root == NULL)
@@ -480,20 +537,24 @@ void stats(bucket **HashTable, int HashNum){
 			// printf("cur entries: %d for bucket No: %d\n", HashTable[i]->currentNumberOfEntries, i);
 			for (int j = 0; j < HashTable[i]->currentNumberOfEntries; j++)
 			{
-			 	printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
+			 	// printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
+			 	printf("%s ", HashTable[i]->entries[j].nameOfdiseaseORc);
 			 	if (HashTable[i]->entries[j].root != NULL)
 			 	{
-			 		printf("number of outbreaks: %d\n" ,numberOfOutbreaks(HashTable[i]->entries[j].root));
+			 		// printf("number of outbreaks: %d\n" ,numberOfOutbreaks(HashTable[i]->entries[j].root));
+			 		printf("%d\n" ,numberOfOutbreaks(HashTable[i]->entries[j].root));
 			 	}
 			} 
 			bucket * last_bucket = HashTable[i]->next;
 			while (last_bucket != NULL){
 				for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
 				{
-			 		printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+			 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+			 		printf("%s ", last_bucket->entries[k].nameOfdiseaseORc);
 			 		if (last_bucket->entries[k].root != NULL)
 			 		{
-			 			printf("number of outbreaks: %d\n" ,numberOfOutbreaks(last_bucket->entries[k].root));
+			 			// printf("number of outbreaks: %d\n" ,numberOfOutbreaks(last_bucket->entries[k].root));
+			 			printf("%d\n", numberOfOutbreaks(last_bucket->entries[k].root));
 			 		}
 				}
 				last_bucket = last_bucket->next; 
@@ -505,7 +566,7 @@ void stats(bucket **HashTable, int HashNum){
 }
 
 
-
+//print number of outbreaks for every disease
 void stats2dates(bucket **HashTable, int HashNum, char *date1, char *date2){
 	date idate1, idate2;
 	
@@ -522,25 +583,29 @@ void stats2dates(bucket **HashTable, int HashNum, char *date1, char *date2){
 		{
 			for (int j = 0; j < HashTable[i]->currentNumberOfEntries; j++)
 			{
-			 	printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
+			 	// printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
+			 	printf("%s ", HashTable[i]->entries[j].nameOfdiseaseORc);
 			 	if (HashTable[i]->entries[j].root != NULL)
 			 	{
-			 		printf("number of outbreaks: %d\n" ,numberOfOutbreaks2dates(HashTable[i]->entries[j].root, idate1, idate2));
+			 		// printf("number of outbreaks: %d\n" ,numberOfOutbreaks2dates(HashTable[i]->entries[j].root, idate1, idate2));
+			 		printf("%d\n", numberOfOutbreaks2dates(HashTable[i]->entries[j].root, idate1, idate2));
 			 	}
 			} 
 			bucket * last_bucket = HashTable[i]->next;
 			while (last_bucket != NULL){
 				for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
 				{
-			 		printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+			 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+			 		printf("%s ", last_bucket->entries[k].nameOfdiseaseORc);
 			 		if (last_bucket->entries[k].root != NULL)
 			 		{
-			 			printf("number of outbreaks: %d\n" ,numberOfOutbreaks2dates(last_bucket->entries[k].root, idate1, idate2));
+			 			// printf("number of outbreaks: %d\n" ,numberOfOutbreaks2dates(last_bucket->entries[k].root, idate1, idate2));
+			 			printf("%d\n" ,numberOfOutbreaks2dates(last_bucket->entries[k].root, idate1, idate2));
 			 		}
 				}
 				last_bucket = last_bucket->next; 
 			}
-			printf("\n");
+			// printf("\n");
 		}
 	}
 
@@ -565,7 +630,8 @@ void frequency(bucket **HashTable, int HashNum, char *date1, char *date2, char *
 	 	// printf("Disease name: %s ", HashTable[hashValue]->entries[j].nameOfdiseaseORc);
 	 	if (strcmp(HashTable[hashValue]->entries[j].nameOfdiseaseORc, virusName) == 0 && HashTable[hashValue]->entries[j].root != NULL)
 	 	{
-	 		printf("number of outbreaks for disease %s: %d\n" , virusName, numberOfOutbreaks2dates(HashTable[hashValue]->entries[j].root, idate1, idate2));
+	 		// printf("number of outbreaks for disease %s: %d\n" , virusName, numberOfOutbreaks2dates(HashTable[hashValue]->entries[j].root, idate1, idate2));
+	 		printf("%s %d\n" , virusName, numberOfOutbreaks2dates(HashTable[hashValue]->entries[j].root, idate1, idate2));
 	 		return;
 	 	}
 	} 
@@ -576,7 +642,8 @@ void frequency(bucket **HashTable, int HashNum, char *date1, char *date2, char *
 	 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
 	 		if (strcmp(last_bucket->entries[k].nameOfdiseaseORc, virusName) == 0 && last_bucket->entries[k].root != NULL)
 	 		{
-	 			printf("number of outbreaks for disease %s: %d\n" , virusName, numberOfOutbreaks2dates(last_bucket->entries[k].root, idate1, idate2));
+	 			// printf("number of outbreaks for disease %s: %d\n" , virusName, numberOfOutbreaks2dates(last_bucket->entries[k].root, idate1, idate2));
+	 			printf("%s %d\n" , virusName, numberOfOutbreaks2dates(last_bucket->entries[k].root, idate1, idate2));
 	 			return;
 	 		}
 		}
@@ -590,7 +657,7 @@ void frequency(bucket **HashTable, int HashNum, char *date1, char *date2, char *
 
 
 
-
+//find the red black tree  and pass it to numberOfOutbreaks2dates1country
 void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *date2, char *virusName, char *country){
 	date idate1, idate2;
 	
@@ -602,13 +669,16 @@ void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *da
 
 	int hashValue = hash2(country, HashNum);
 
-	
+	if (HashTable[hashValue] == NULL)
+		return;
+
 	for (int j = 0; j < HashTable[hashValue]->currentNumberOfEntries; j++)
 	{
 	 	// printf("Disease name: %s ", HashTable[hashValue]->entries[j].nameOfdiseaseORc);
 	 	if (strcmp(HashTable[hashValue]->entries[j].nameOfdiseaseORc, country) == 0 && HashTable[hashValue]->entries[j].root != NULL)
 	 	{
-	 		printf("number of outbreaks for country %s: %d\n" , country, numberOfOutbreaks2dates1country(HashTable[hashValue]->entries[j].root, idate1, idate2, country, virusName));
+	 		// printf("number of outbreaks for country %s: %d\n" , country, numberOfOutbreaks2dates1country(HashTable[hashValue]->entries[j].root, idate1, idate2, country, virusName));
+	 		printf("%s %d\n" , virusName, numberOfOutbreaks2dates1country(HashTable[hashValue]->entries[j].root, idate1, idate2, country, virusName));
 	 		return;
 	 	}
 	} 
@@ -619,7 +689,8 @@ void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *da
 	 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
 	 		if (strcmp(last_bucket->entries[k].nameOfdiseaseORc, country) == 0 && last_bucket->entries[k].root != NULL)
 	 		{
-	 			printf("number of outbreaks for country %s: %d\n" , country, numberOfOutbreaks2dates1country(last_bucket->entries[k].root, idate1, idate2, country, virusName));
+	 			// printf("number of outbreaks for country %s: %d\n" , country, numberOfOutbreaks2dates1country(last_bucket->entries[k].root, idate1, idate2, country, virusName));
+	 			printf("%s %d\n" , virusName, numberOfOutbreaks2dates1country(last_bucket->entries[k].root, idate1, idate2, country, virusName));
 	 			return;
 	 		}
 		}
@@ -632,7 +703,7 @@ void frequencyWithCountry(bucket **HashTable, int HashNum, char *date1, char *da
 
 
 
-
+//takes a red black tree and returns the number of patients with given disease
 int numberOfPatients(rb_node *root, char *disease){
     // printf("kalispera\n");
     if (root == NULL)
@@ -656,7 +727,7 @@ int numberOfPatients(rb_node *root, char *disease){
 
 }
 
-
+//find the red-black tree from the hash table
 void currentPatients(bucket **HashTable, int HashNum){
 	if (HashTable == NULL) return;
 
@@ -668,25 +739,29 @@ void currentPatients(bucket **HashTable, int HashNum){
 		{
 			for (int j = 0; j < HashTable[i]->currentNumberOfEntries; j++)
 			{
-			 	printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
+			 	// printf("Disease name: %s ", HashTable[i]->entries[j].nameOfdiseaseORc);
+			 	printf("%s ", HashTable[i]->entries[j].nameOfdiseaseORc);
 			 	if (HashTable[i]->entries[j].root != NULL)
 			 	{
-			 		printf("number of patients: %d\n" ,numberOfPatients(HashTable[i]->entries[j].root, HashTable[i]->entries[j].nameOfdiseaseORc));
+			 		// printf("number of patients: %d\n" ,numberOfPatients(HashTable[i]->entries[j].root, HashTable[i]->entries[j].nameOfdiseaseORc));
+			 		printf("%d\n" ,numberOfPatients(HashTable[i]->entries[j].root, HashTable[i]->entries[j].nameOfdiseaseORc));
 			 	}
 			} 
 			bucket * last_bucket = HashTable[i]->next;
 			while (last_bucket != NULL){
 				for (int k = 0; k < last_bucket->currentNumberOfEntries; k++)
 				{
-			 		printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+			 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
+			 		printf("%s ", last_bucket->entries[k].nameOfdiseaseORc);
 			 		if (last_bucket->entries[k].root != NULL)
 			 		{
-			 			printf("number of patients: %d\n" ,numberOfPatients(last_bucket->entries[k].root, last_bucket->entries[k].nameOfdiseaseORc));
+			 			// printf("number of patients: %d\n" ,numberOfPatients(last_bucket->entries[k].root, last_bucket->entries[k].nameOfdiseaseORc));
+			 			printf("%d\n", numberOfPatients(last_bucket->entries[k].root, last_bucket->entries[k].nameOfdiseaseORc));
 			 		}
 				}
 				last_bucket = last_bucket->next; 
 			}
-			printf("\n");
+			// printf("\n");
 		}
 	}
 
@@ -695,18 +770,20 @@ void currentPatients(bucket **HashTable, int HashNum){
 
 
 
-
+//find the red black tree and pass it to numberOfPatients
 void currentPatientsWithDisease(bucket **HashTable, int HashNum, char * disease){
 
 	int hashValue = hash2(disease, HashNum);
 
-	
+	if (HashTable[hashValue] == NULL)
+		return;
+
 	for (int j = 0; j < HashTable[hashValue]->currentNumberOfEntries; j++)
 	{
 	 	// printf("Disease name: %s ", HashTable[hashValue]->entries[j].nameOfdiseaseORc);
 	 	if (strcmp(HashTable[hashValue]->entries[j].nameOfdiseaseORc, disease) == 0 && HashTable[hashValue]->entries[j].root != NULL)
 	 	{
-	 		printf("number of patients for disease %s: %d\n" , disease, numberOfPatients(HashTable[hashValue]->entries[j].root, disease));
+	 		printf("%s %d\n" , disease, numberOfPatients(HashTable[hashValue]->entries[j].root, disease));
 	 		return;
 	 	}
 	} 
@@ -717,7 +794,7 @@ void currentPatientsWithDisease(bucket **HashTable, int HashNum, char * disease)
 	 		// printf("Disease name: %s ", last_bucket->entries[k].nameOfdiseaseORc);
 	 		if (strcmp(last_bucket->entries[k].nameOfdiseaseORc, disease) == 0 && last_bucket->entries[k].root != NULL)
 	 		{
-	 			printf("number of patients for disease %s: %d\n" , disease, numberOfPatients(last_bucket->entries[k].root, disease));
+	 			printf("%s %d\n" , disease, numberOfPatients(last_bucket->entries[k].root, disease));
 	 			return;
 	 		}
 		}
@@ -733,7 +810,10 @@ void currentPatientsWithDisease(bucket **HashTable, int HashNum, char * disease)
 
 ///////////////////////////topk/////////////////////////////
 
-
+//insert every heapListNode to heap
+//print top k results by deleting heap
+//free heap
+//free Heaplist
 void fromListToHeap(heapListNode *heapListHead, int k){
 	heap *my_heap = (heap*) newHeap();
 	heapListNode *current = heapListHead;
@@ -767,13 +847,22 @@ void fromListToHeap(heapListNode *heapListHead, int k){
 }
 
 
-
-void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int mod){
+//update heap list according to mod 
+//mod 0 topk-Diseases no dates
+//mod 1 topk-Countries no dates
+//mod 2 topk-Diseases with dates
+//mod 3 topk-Countries with dates
+void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int mod, date date1, date date2){
 
     if (root == NULL)
 		return;
 
+	topk2(root->left, heapListHead, k,  country, mod, date1, date2);
+ 
+	topk2(root->right, heapListHead, k,  country, mod, date1, date2);
+	
 	list_node *current = root->listPtr;
+
 	while(current != NULL && earlier(&current->data->entryDate, &root->data_date) == 0){
 		if (mod == 0)
 		{
@@ -788,34 +877,51 @@ void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int
 			{	
 				updateHeapList(heapListHead, current->data->country, 1);
 			}
+		}
+		else if (mod == 2)
+		{
+			if (earlier(&current->data->entryDate, &date1) != 1 && earlier(&current->data->entryDate, &date2) != -1 ){
+				if (strcmp(current->data->country, root->listPtr->data->country) == 0)
+				{	
+					updateHeapList(heapListHead, current->data->diseaseID, 1);
+				}
+			}
+		}
+		else if (mod == 3)
+		{
+			if (earlier(&current->data->entryDate, &date1) != 1 && earlier(&current->data->entryDate, &date2) != -1 ){
+				if (strcmp(current->data->diseaseID, root->listPtr->data->diseaseID) == 0)
+				{	
+					updateHeapList(heapListHead, current->data->country, 1);
+				}
+			}
 		}	
 			
 		current = current->next;
 	}
-	
-	topk2(root->left, heapListHead, k,  country, mod);
- 
-	topk2(root->right, heapListHead, k,  country, mod);
-	
+
 }
 
 
+//find the red black tree and pass it to topk2
+void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod, date date1, date date2){
+	// printf("k top %d of %s\n", kk, country);
 
-void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod){
-	printf("k top %d of %s\n", kk, country);
-
+	// printf("%s\n", country);
 	int hashValue = hash2(country, HashNum);
+	// printf("%d\n", hashValue);
 	heapListNode *heapListHead = NULL;
 
-	
+	if (HashTable[hashValue] == NULL)
+		return;
+	// printf("%p\n", HashTable[hashValue]);
 	for (int j = 0; j < HashTable[hashValue]->currentNumberOfEntries; j++)
 	{
 	 	// printf("Disease name: %s ", HashTable[hashValue]->entries[j].nameOfdiseaseORc);
 	 	if (strcmp(HashTable[hashValue]->entries[j].nameOfdiseaseORc, country) == 0 && HashTable[hashValue]->entries[j].root != NULL)
 	 	{
-	 		//edw exw to dentro
 	 		// printf("root %p\n", HashTable[hashValue]->entries[j].root);
-	 		topk2(HashTable[hashValue]->entries[j].root, &heapListHead, kk, country, mod);
+	 		topk2(HashTable[hashValue]->entries[j].root, &heapListHead, kk, country, mod, date1, date2);
 	 		// printHeapList(heapListHead);
 	 		fromListToHeap(heapListHead, kk);
 	 		return;
@@ -830,7 +936,7 @@ void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod){
 	 		{
 	 			//edw exw to dentro
 	 			// printf("root %p\n", last_bucket->entries[k].root);
-	 			topk2(last_bucket->entries[k].root, &heapListHead, kk, country, mod);
+	 			topk2(last_bucket->entries[k].root, &heapListHead, kk, country, mod, date1, date2);
 	 			// printHeapList(heapListHead);
 	 			fromListToHeap(heapListHead, kk);
 	 			return;
@@ -839,7 +945,7 @@ void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod){
 		last_bucket = last_bucket->next; 
 	}
 
-	printf("country not found\n");
+	printf("not found\n");
 }
 
 

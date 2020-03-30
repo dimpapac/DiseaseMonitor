@@ -12,9 +12,9 @@ clean:
 	rm -f $(OBJS) $(EXEC) 
 
 run: $(EXEC) 
-	./diseaseMonitor -p ../random_generator-master/large.txt -h1 1 -h2 1 -b 70
+	./diseaseMonitor -p small.txt -h1 5 -h2 5 -b 70
 	
 val: $(EXEC) 
 	valgrind -v --leak-check=full --show-leak-kinds=all ./diseaseMonitor \
-	-p ../random_generator-master/large.txt -h1 1 -h2 1 -b 70
+	-p small.txt -h1 5 -h2 5 -b 70
 

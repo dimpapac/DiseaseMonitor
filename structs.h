@@ -8,9 +8,6 @@
 // #include "list.h"
 // #include "functions.h"
 
-// typedef struct li_node list_node;
-
-
 
 typedef struct {
 	int day;
@@ -55,8 +52,6 @@ typedef struct b{
 	struct b *next;
 } bucket;
 
-
-// capacity = (bucketSize - sizeof(struct b*) - sizeof(int) )/ sizeof(bucket_entry)
 
 typedef struct heapnode{
 	int data;

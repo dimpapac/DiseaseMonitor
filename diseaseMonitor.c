@@ -64,21 +64,24 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < countryHashNum; i++)
 		countryHashTable[i] = NULL;
 
-	// int capacity; // capacity = (bucketSize - sizeof(struct b*) - sizeof(int) )/ sizeof(bucket_entry)
-
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t lineSize;
 	
 	int capacity = (bucketSize - sizeof(struct b*) - sizeof(int) )/ sizeof(bucket_entry);
-	printf("sizeof bucket entry %lu\n", sizeof(bucket_entry));
+	// printf("capacity %d\n", capacity);
+	if (capacity < 1)
+	{
+		printf("bucket size is too small \n");
+		return -1;
+	}
+	// printf("sizeof bucket entry %lu\n", sizeof(bucket_entry));
 
 	list_node *head = NULL; // head of list 
 		
 	while ((lineSize = getline(&line, &len, input)) != -1) {
 		// printf("lineSize = %lu    len = %lu\n", lineSize, len);
 		line[lineSize - 1] = '\0';
-		// printf("\n");
 		// printf("%s\n", line);
 		entry* new_entry = line_to_entry(line);
 		if (new_entry == NULL)
@@ -89,7 +92,8 @@ int main(int argc, char *argv[])
 		// print_entry(new_entry);
 		
 		if(search(head,  new_entry->recordID) != NULL){
-			printf("%s already exists, adios\n", new_entry->recordID);
+			printf("%s already exists\n", new_entry->recordID);
+			//free entry
 			free(new_entry->recordID);
 			free(new_entry->patientFirstName);
 			free(new_entry->patientLastName);
@@ -98,14 +102,14 @@ int main(int argc, char *argv[])
 			free(new_entry);
 			free(line);
 			line = NULL;
-
+			//free data structures
 			free_hash(diseaseHashTable, diseaseHashNum);
 			free_hash(countryHashTable, countryHashNum);
 			free_list(head);
-
-			fclose(input); //close file
+			//close file
+			fclose(input);
 			free(inputfile);
-			return -1;
+			return -1; 
 		}
 		
 		// printf("%d\n", earlier(&new_entry->entryDate, &new_entry->exitDate));
@@ -123,20 +127,17 @@ int main(int argc, char *argv[])
 			line = NULL;
 			continue;
 		}
-
-
-		// list_node *new_node = append(&head, new_entry);
+		//insert patient to a sorted list
 		list_node *new_node = sortedInsert(&head, new_entry);
-
+		//insert patient to hash tables
 		insert_to_hash(diseaseHashTable, diseaseHashNum, new_node->data->diseaseID, new_node, capacity); 
 		insert_to_hash(countryHashTable, countryHashNum, new_node->data->country, new_node, capacity);
+		
 		free(line);
 		line = NULL;
 	}
 
 	// print_list(head);
-
-	// printf("capacity: %d\n", capacity);
 
 	//command prompt
 	size_t n;
@@ -147,20 +148,19 @@ int main(int argc, char *argv[])
 		command = NULL;
 		lineSize = getline(&command, &n, stdin); //get line from stdin
 		command[lineSize - 1] = '\0';
-		printf("COMMAND: %s\n", command); 
+		// printf("COMMAND: %s\n", command); 
 /*1*/	if (strncmp(command, "/globalDiseaseStats", strlen("/globalDiseaseStats")) == 0 || strncmp(command, "gds", strlen("gds")) == 0) {
 			// printf("/globalDiseaseStats\n");
 			char *token = strtok(command," ");
 			if (token == NULL) continue;
     		token = strtok(NULL, " ");
-			// if (token != NULL) printf("%s\n",token);
 			if (token == NULL) //no dates given
 			{
 				stats(diseaseHashTable, diseaseHashNum);
 			}
 			else
 			{
-				char * date1 = token; //what 
+				char * date1 = token; 
 				// printf("%s\n", date1);
 				char *date2 = strtok(NULL," ");
 				if (date2 == NULL){
@@ -169,9 +169,7 @@ int main(int argc, char *argv[])
 				}
 				else {
 					// printf("%s\n",date2);
-					//call function with 2 dates 
 					stats2dates(diseaseHashTable, diseaseHashNum, date1, date2);
-
 				}
 			}
 
@@ -181,8 +179,10 @@ int main(int argc, char *argv[])
 			if (token == NULL) continue;
     		// printf("%s\n", token);
     		char *virusName = strtok(NULL, " ");
-    		if (virusName == NULL) continue;
-			// printf("%s\n", virusName);
+    		if (virusName == NULL) {
+    			printf("you have to give a virusName\n");
+    			continue;
+			}// printf("%s\n", virusName);
 
 			char *date1 = strtok(NULL," ");
 			if (date1 == NULL){
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				printf("country: %s\n", country);
+				// printf("country: %s\n", country);
 				frequencyWithCountry(countryHashTable, countryHashNum, date1, date2, virusName, country);
 
 			}
@@ -233,13 +233,11 @@ int main(int argc, char *argv[])
     			continue;
     		}
     		char *date1 = strtok(NULL, " ");
-			// if (token != NULL) printf("%s\n",token);
 			if (date1 == NULL) //no dates given
 			{
 				// printf("no dates\n");
-				// stats(diseaseHashTable, diseaseHashNum);
-
-				topk(countryHashTable, countryHashNum, k, country, 0);
+				date nodate; //NULL 
+				topk(countryHashTable, countryHashNum, k, country, 0, nodate, nodate);
 			}
 			else
 			{
@@ -250,10 +248,14 @@ int main(int argc, char *argv[])
 					continue;
 				}
 				else {
-					// printf("%s\n",date2);
-					//call function with 2 dates 
-					// stats2dates(diseaseHashTable, diseaseHashNum, date1, date2);
-
+					date idate1, idate2;
+					if (charToDate(date1, &idate1) != 0 || charToDate(date2, &idate2) != 0 || earlier(&idate2, &idate1) == 1)
+					{
+						printf("wrong dates\n");
+						continue;
+					}
+					
+					topk(countryHashTable, countryHashNum, k, country, 2, idate1, idate2);
 				}
 			}
 
@@ -282,9 +284,9 @@ int main(int argc, char *argv[])
 			// if (token != NULL) printf("%s\n",token);
 			if (date1 == NULL) //no dates given
 			{
-				printf("no dates\n");
-				// stats(diseaseHashTable, diseaseHashNum);
-				topk(diseaseHashTable, diseaseHashNum, k, disease, 1);
+				// printf("no dates\n");
+				date nodate; //NULL
+				topk(diseaseHashTable, diseaseHashNum, k, disease, 1, nodate, nodate);
 			}
 			else
 			{
@@ -295,9 +297,14 @@ int main(int argc, char *argv[])
 					continue;
 				}
 				else {
-					// printf("%s\n",date2);
-					//call function with 2 dates 
-					// stats2dates(diseaseHashTable, diseaseHashNum, date1, date2);
+					date idate1, idate2;
+					if (charToDate(date1, &idate1) != 0 || charToDate(date2, &idate2) != 0 || earlier(&idate2, &idate1) == 1)
+					{
+						printf("wrong dates\n");
+						continue;
+					}
+
+					topk(diseaseHashTable, diseaseHashNum, k, disease, 3, idate1, idate2);
 
 				}
 			}
@@ -312,6 +319,8 @@ int main(int argc, char *argv[])
 			if (new_entry == NULL)
 			{
 				printf("%s\n", "something was wrong with your entry");
+				// free(line);
+				line = NULL;
 				continue;
 			}
 
@@ -330,10 +339,26 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
+			if (earlier(&new_entry->entryDate, &new_entry->exitDate) == -1)
+			{
+				printf("Wrong dates\n");
+				//free entry
+				free(new_entry->recordID);
+				free(new_entry->patientFirstName);
+				free(new_entry->patientLastName);
+				free(new_entry->diseaseID);
+				free(new_entry->country);
+				free(new_entry);
+				// free(line);
+				line = NULL;
+				continue;
+			}
+
 			list_node *new_node = sortedInsert(&head, new_entry);
 			insert_to_hash(diseaseHashTable, diseaseHashNum, new_node->data->diseaseID, new_node, capacity); 
 			insert_to_hash(countryHashTable, countryHashNum, new_node->data->country, new_node, capacity);
-			print_list(head);
+			// print_list(head);
+			printf("Record added\n");
 
 
 
@@ -358,8 +383,11 @@ int main(int argc, char *argv[])
 			}
 		
 			int retVal = recordPatientExit(head, recordID, exitDate);
-			if (retVal == -1)
+			if (retVal == 0)
+				printf("Record updated\n");
+			else
 				printf("something was wrong with your command\n");			
+
 
 /*7*/	} else if (strncmp(command, "/numCurrentPatients", strlen("/numCurrentPatients")) == 0 || strncmp(command, "ncp", strlen("ncp")) == 0) {
 			// printf("numCurrentPatients\n");
@@ -372,7 +400,6 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				printf("%s\n",disease);
 				currentPatientsWithDisease(diseaseHashTable, diseaseHashNum, disease);
 			}
 
@@ -383,21 +410,22 @@ int main(int argc, char *argv[])
 		}
 
 	} while(strcmp(command, "/exit\0") != 0);
+	printf("exiting\n");
 	if (command != NULL)
 		free(command);
 
 	// print_hash(diseaseHashTable, diseaseHashNum);
 	// print_hash(countryHashTable, countryHashNum);
 
-
+	//free data structures
 	free_hash(diseaseHashTable, diseaseHashNum);
 	free_hash(countryHashTable, countryHashNum);
 
 	free_list(head);
 	free(line);
 	line = NULL;
-
-	fclose(input); //close file
+	//close file
+	fclose(input); 
 	free(inputfile);
 	
 

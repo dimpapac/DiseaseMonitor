@@ -28,10 +28,9 @@
 //////////////////heap list/////////////////////
 
 heapListNode * newHeapListNode(int sum, char *name){
-	printf("newHeapListNode\n");
+	// printf("newHeapListNode\n");
 	heapListNode *newhln = malloc(sizeof(heapListNode));
 	newhln->next = NULL;
-	// newhln->hnode = malloc(sizeof(heap_node));
 	newhln->hnode = newHeapNode(sum, name);
 
 	return newhln;
@@ -81,7 +80,6 @@ void updateHeapList(heapListNode **head, char *string, int k){
 void printHeapList(heapListNode *head){
 
 	while(head != NULL){
-		// printf("kalispera apo print list\n");
 		printf("%s %d\n", head->hnode->stringData, head->hnode->data);
 		head = head->next;
 	}
@@ -101,7 +99,7 @@ void freeHeapList(heapListNode *head){
 
 ///////////////////////////////////////////////
 heap_node *newHeapNode(int k, char *name){
-	printf("newHeapNode\n");
+	// printf("newHeapNode\n");
 	heap_node * node = malloc(sizeof(heap_node));
 	node->data = k;
 	node->stringData = malloc(sizeof(char)* (strlen(name) + 1));
@@ -181,26 +179,6 @@ void setTail(heap *my_heap, heap_node *node){
 }
 
 
-// void insertHeap(heap *my_heap, int data, char *name){
-// 	if(my_heap->root == NULL){
-// 		my_heap->root = newHeapNode(data, name);
-// 		my_heap->tail = my_heap->root;
-// 	}
-// 	else if(my_heap->tail->left == NULL){
-// 		my_heap->tail->left = newHeapNode(data, name);
-// 		my_heap->tail->left->parent = my_heap->tail;
-// 		maxHeapify(my_heap->tail->left);
-// 	}else {
-// 		my_heap->tail->right = newHeapNode(data, name);
-// 		my_heap->tail->right->parent = my_heap->tail;
-// 		maxHeapify(my_heap->tail->right);
-// 		heap_node *prevTail = my_heap->tail;
-// 		setTail(my_heap, my_heap->tail);
-// 		my_heap->tail->prevTail = prevTail;
-// 	}
-// 	my_heap->size++;
-// }
-
 void insertHeap(heap *my_heap, heap_node *new_node){
 	if(my_heap->root == NULL){
 		my_heap->root = new_node;
@@ -219,12 +197,11 @@ void insertHeap(heap *my_heap, heap_node *new_node){
 		my_heap->tail->prevTail = prevTail;
 	}
 	my_heap->size++;
-	printf("insert size %d\n", my_heap->size);
 }
 
 
 void freeHeapNode(heap_node *node){
-	printf("freeHeapNode\n");
+	// printf("freeHeapNode\n");
 	free(node->stringData);
 	free(node);
 }
@@ -250,14 +227,14 @@ void deleteRoot(heap *my_heap){
 	
 	if (my_heap->tail->right != NULL){
 		swapNodeData(my_heap->tail->right, my_heap->root);
-		freeHeapNode(my_heap->tail->right);
-		my_heap->tail->right = NULL; //free
+		freeHeapNode(my_heap->tail->right); //free
+		my_heap->tail->right = NULL; 
 		revMaxHeapify(my_heap->root);
 	}
 	else if(my_heap->tail->left != NULL) {
 		swapNodeData(my_heap->tail->left, my_heap->root);
-		freeHeapNode(my_heap->tail->left);
-		my_heap->tail->left = NULL; //free
+		freeHeapNode(my_heap->tail->left); //free
+		my_heap->tail->left = NULL; 
 		revMaxHeapify(my_heap->root);
 	}
 	else {
@@ -269,11 +246,6 @@ void deleteRoot(heap *my_heap){
 	
 	
 }
-
-int getMaximum(heap *my_heap){
-	return my_heap->root->data;
-}
-
 
 
 //this function was used to check the rotations 
@@ -288,8 +260,6 @@ void inorderHeap(heap_node *root) {
         inorderHeap(root->right); 
     } 
 } 
-
-
 
 
 void printHeapNode(heap_node * node){

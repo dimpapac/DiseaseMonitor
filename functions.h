@@ -29,6 +29,8 @@ void free_bucket(bucket *buc);
 void free_hash(bucket **diseaseHashTable, int diseaseHashNum);
 
 ////////////CLI functions/////////////////////////
+int charToDate(char* dateString, date *dateToReturn);
+
 
 int recordPatientExit(list_node* head, char* recordID, char* exitDate);
 int numberOfOutbreaks(rb_node *root);
@@ -47,8 +49,8 @@ void currentPatients(bucket **HashTable, int HashNum);
 
 void currentPatientsWithDisease(bucket **HashTable,int HashNum, char *disease);
 
-void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int mod);
-void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod);
+void topk2(rb_node *root, heapListNode **heapListHead, int k, char *country, int mod, date date1, date date2);
+void topk(bucket **HashTable, int HashNum, int kk, char * country, int mod, date date1, date date2);
 
 
 

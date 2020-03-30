@@ -269,20 +269,6 @@ void print_rb_node(rb_node *node){
     printf("pointer to list %p", node->listPtr);  
 }
 
-//return 0 if id not found in tree
-//return 1 if id is in the tree
-// int lookup_rb_tree(rb_node *root, int id){
-// 	rb_node * res;
-// 	res = search(root,id);
-// 	if (res == NULL){
-// 		// printf("%d not found\n",id);
-//         return 0;
-// 	}
-// 	else{
-// 		print_rb_node(res);
-//         return 1;
-// 	}
-// }
 
 
 //takes a pointer to a red black node and frees what is needed
